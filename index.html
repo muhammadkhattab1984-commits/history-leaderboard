@@ -156,6 +156,13 @@
             background-color: #27ae60;
         }
 
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.1rem;
+            color: #555;
+        }
+
         .footer {
             text-align: center;
             padding: 15px;
@@ -174,30 +181,27 @@
         <p>مادة الدراسات الاجتماعية - الصف الثالث الإعدادي</p>
     </div>
 
-    <!-- منصة التتويج للثلاثة الأوائل -->
+    <!-- منصة التتويج -->
     <div class="podium">
-        <!-- المركز الثاني -->
         <div class="podium-item rank-2">
             <div class="avatar">🥈</div>
             <div class="podium-box">
-                <div class="student-name">أحمد محمود</div>
-                <div class="score-tag">19 / 20</div>
+                <div class="student-name" id="p2-name">--</div>
+                <div class="score-tag" id="p2-score">--</div>
             </div>
         </div>
-        <!-- المركز الأول -->
         <div class="podium-item rank-1">
             <div class="avatar">👑</div>
             <div class="podium-box">
-                <div class="student-name">محمد علي</div>
-                <div class="score-tag">20 / 20</div>
+                <div class="student-name" id="p1-name">--</div>
+                <div class="score-tag" id="p1-score">--</div>
             </div>
         </div>
-        <!-- المركز الثالث -->
         <div class="podium-item rank-3">
             <div class="avatar">🥉</div>
             <div class="podium-box">
-                <div class="student-name">عمر خالد</div>
-                <div class="score-tag">18 / 20</div>
+                <div class="student-name" id="p3-name">--</div>
+                <div class="score-tag" id="p3-score">--</div>
             </div>
         </div>
     </div>
@@ -214,35 +218,8 @@
                 </tr>
             </thead>
             <tbody id="students-list">
-                <tr class="top-row-1">
-                    <td>🥇 الأول</td>
-                    <td>محمد علي</td>
-                    <td>3 / 1</td>
-                    <td><span class="badge">20 / 20</span></td>
-                </tr>
-                <tr class="top-row-2">
-                    <td>🥈 الثاني</td>
-                    <td>أحمد محمود</td>
-                    <td>3 / 2</td>
-                    <td><span class="badge">19 / 20</span></td>
-                </tr>
-                <tr class="top-row-3">
-                    <td>🥉 الثالث</td>
-                    <td>عمر خالد</td>
-                    <td>3 / 1</td>
-                    <td><span class="badge">18 / 20</span></td>
-                </tr>
                 <tr>
-                    <td>4</td>
-                    <td>سارة يوسف</td>
-                    <td>3 / 3</td>
-                    <td><span class="badge">18 / 20</span></td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td>مريم إبراهيم</td>
-                    <td>3 / 2</td>
-                    <td><span class="badge">17 / 20</span></td>
+                    <td colspan="4" class="loading">جاري تحميل البيانات مباشرة... ⏳</td>
                 </tr>
             </tbody>
         </table>
@@ -252,6 +229,68 @@
         مع أطيب تمنياتنا لجميع الطلاب بالدوام والتفوق 🌟
     </div>
 </div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbylw46iQORGjPWMiCOStFL1zN00rwq_eWp6c1f22yxtxQKv-jY6SIZ-2XCWM1as93A6/exec";
+
+    async function loadData() {
+        try {
+            const response = await fetch(SCRIPT_URL);
+            const data = await response.json();
+
+            // ترتيب الطلاب حسب الدرجة من الأعلى للأقل
+            data.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
+
+            // تحديث الثلاثة الأوائل في منصة التتويج
+            if (data[0]) {
+                document.getElementById("p1-name").innerText = data[0].name;
+                document.getElementById("p1-score").innerText = data[0].score;
+            }
+            if (data[1]) {
+                document.getElementById("p2-name").innerText = data[1].name;
+                document.getElementById("p2-score").innerText = data[1].score;
+            }
+            if (data[2]) {
+                document.getElementById("p3-name").innerText = data[2].name;
+                document.getElementById("p3-score").innerText = data[2].score;
+            }
+
+            // بناء جدول الطلاب
+            const tbody = document.getElementById("students-list");
+            tbody.innerHTML = "";
+
+            data.forEach((student, index) => {
+                let rankText = index + 1;
+                let rowClass = "";
+
+                if (index === 0) { rankText = "🥇 الأول"; rowClass = "top-row-1"; }
+                else if (index === 1) { rankText = "🥈 الثاني"; rowClass = "top-row-2"; }
+                else if (index === 2) { rankText = "🥉 الثالث"; rowClass = "top-row-3"; }
+
+                const row = `
+                    <tr class="${rowClass}">
+                        <td>${rankText}</td>
+                        <td>${student.name}</td>
+                        <td>${student.class}</td>
+                        <td><span class="badge">${student.score}</span></td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+
+        } catch (error) {
+            console.error("خطأ في التحميل:", error);
+            document.getElementById("students-list").innerHTML = `
+                <tr>
+                    <td colspan="4" style="color:red; font-weight:bold;">حدث خطأ أثناء تحميل البيانات. يرجى التأكد من الشيت.</td>
+                </tr>
+            `;
+        }
+    }
+
+    // تشغيل التحميل عند فتح الصفحة مباشرة
+    loadData();
+</script>
 
 </body>
 </html>
