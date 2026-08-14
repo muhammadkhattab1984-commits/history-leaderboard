@@ -94,14 +94,14 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnd2x6ZtT7rqxeCm4y8NRHfixsN0O5xYAEMTa9HLH8lbZfZjxm3SqswaUS3KkhLFjP/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx85tdaD2otu6i1SzcG-HNiJlC3HJYoFo3Lr9p__bRJVUWyRVRVU11FUwHR6Jr1iPD9/exec";
 
     async function loadData() {
         try {
             const response = await fetch(SCRIPT_URL);
             const data = await response.json();
 
-            // ترتيب الطلاب حسب الدرجة الرقمية من الأعلى للأقل
+            // ترتيب تنازلي حسب أعلى درجة
             data.sort((a, b) => b.numScore - a.numScore);
 
             // منصة التتويج
@@ -109,7 +109,7 @@
             if (data[1]) { document.getElementById("p2-name").innerText = data[1].name; document.getElementById("p2-score").innerText = data[1].score; }
             if (data[2]) { document.getElementById("p3-name").innerText = data[2].name; document.getElementById("p3-score").innerText = data[2].score; }
 
-            // الجدول
+            // بناء الجدول
             const tbody = document.getElementById("students-list");
             tbody.innerHTML = "";
 
